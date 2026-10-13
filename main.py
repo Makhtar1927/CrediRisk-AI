@@ -17,7 +17,9 @@ SERVER_START_TIME = time.time()
 app = FastAPI(
     title="CrediRisk AI API",
     description="Système d'Intelligence Artificielle d'Évaluation des Risques de Crédit",
-    version="1.0.0"
+    version="2.0.0",
+    docs_url="/api/docs",
+    redoc_url=None
 )
 
 app.add_middleware(
@@ -28,16 +30,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Endpoint de santé pour Cronjobs (Keep-Alive Render / UptimeRobot / cron-job.org)
-@app.get("/health")
-@app.get("/healthz")
-@app.get("/api/health")
+# Endpoints de santé pour Cronjobs (Keep-Alive Render / UptimeRobot / cron-job.org)
+@app.get("/health", tags=["Health"])
+@app.get("/healthz", tags=["Health"])
+@app.get("/api/health", tags=["Health"])
 def health_check():
     uptime_sec = int(time.time() - SERVER_START_TIME)
+    status = "healthy" if pipeline is not None else "degraded"
     return {
-        "status": "healthy",
+        "status": status,
         "service": "CrediRisk AI",
+        "version": "2.0.0",
         "model_loaded": pipeline is not None,
+        "model_error": MODEL_ERROR,
         "uptime_seconds": uptime_sec,
         "timestamp": int(time.time())
     }
@@ -45,15 +50,18 @@ def health_check():
 # 2. Chargement du Pipeline Machine Learning
 MODEL_PATH = "credit_risk_best_pipeline.joblib"
 pipeline = None
+MODEL_ERROR = None
 
-if os.path.exists(MODEL_PATH):
-    try:
+try:
+    if os.path.exists(MODEL_PATH):
         pipeline = joblib.load(MODEL_PATH)
         print("[INFO] Pipeline Machine Learning charge avec succes.")
-    except Exception as e:
-        print(f"[ERREUR] Erreur lors du chargement du modele : {e}")
-else:
-    print(f"[ATTENTION] Le fichier modele '{MODEL_PATH}' est introuvable.")
+    else:
+        MODEL_ERROR = f"Fichier modele introuvable : {MODEL_PATH}"
+        print(f"[ATTENTION] {MODEL_ERROR}")
+except Exception as e:
+    MODEL_ERROR = str(e)
+    print(f"[ERREUR] Erreur lors du chargement du modele : {e}")
 
 # Référentiels
 AGENCES = ['CEC_B', 'CEC/PLATEAU', 'MECYD', 'MECREST', 'MECZOR']
@@ -316,14 +324,22 @@ def get_model_info():
         "usages": USAGES
     }
 
-# Montage des fichiers statiques
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-@app.get("/")
+@app.get("/", include_in_schema=False)
 def serve_index():
     return FileResponse("static/index.html")
+
+@app.get("/{full_path:path}", include_in_schema=False)
+def serve_spa(full_path: str):
+    """Fallback : sert index.html pour toutes les routes non-API (SPA routing)."""
+    static_file = f"static/{full_path}"
+    if os.path.isfile(static_file):
+        return FileResponse(static_file)
+    return FileResponse("static/index.html")
+
+# Montage des fichiers statiques — DOIT être après toutes les routes API
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)

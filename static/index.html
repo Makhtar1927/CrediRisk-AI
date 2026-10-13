@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CrediRisk AI - Système d'Évaluation de Risque de Crédit</title>
+    <meta name="description" content="Système d'Intelligence Artificielle pour l'évaluation et le scoring automatisé des risques de crédit bancaire. Random Forest - AUC 98.5%.">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,12 +13,12 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="light-mode">
+<body>
     <!-- HEADER -->
-    <header class="app-header">
+    <header class="app-header" role="banner">
         <div class="header-container">
             <div class="brand">
-                <div class="brand-logo">
+                <div class="brand-logo" aria-hidden="true">
                     <i data-lucide="shield-check" class="logo-icon"></i>
                 </div>
                 <div class="brand-info">
@@ -27,11 +28,14 @@
             </div>
             
             <div class="header-actions">
-                <div class="model-badge">
-                    <span class="status-dot"></span>
-                    <span class="badge-text">Modèle Random Forest SOTA (AUC 98.5%)</span>
+                <div class="model-badge" title="Modèle Random Forest - ROC-AUC 98.5%">
+                    <span class="status-dot" aria-label="Modèle actif"></span>
+                    <span class="badge-text">Random Forest SOTA (AUC 98.5%)</span>
                 </div>
-                <a href="#doc" class="btn-help" id="btnHelp" title="Guide d'utilisation">
+                <button class="btn-theme" id="btnToggleTheme" title="Basculer mode sombre / clair" aria-label="Changer le thème">
+                    <i data-lucide="moon" id="themeIcon"></i>
+                </button>
+                <a href="#" class="btn-help" id="btnHelp" title="Guide d'utilisation" aria-label="Aide">
                     <i data-lucide="help-circle"></i>
                     <span>Aide</span>
                 </a>
@@ -540,9 +544,9 @@
     </main>
 
     <!-- FOOTER -->
-    <footer class="app-footer">
+    <footer class="app-footer" role="contentinfo">
         <div class="footer-container">
-            <p>© 2026 CrediRisk AI - Solution Déployable sur Render / Cloud. Modèle certifié Machine Learning.</p>
+            <p>© 2026 CrediRisk AI — Solution déployée sur Render. Modèle certifié Machine Learning.</p>
             <div class="footer-links">
                 <span class="footer-tag">Python 3.13</span>
                 <span class="footer-tag">FastAPI</span>
@@ -551,6 +555,9 @@
             </div>
         </div>
     </footer>
+
+    <!-- TOAST NOTIFICATIONS -->
+    <div id="toast-container" role="region" aria-live="polite" aria-label="Notifications"></div>
 
     <!-- SCRIPT APPLICATION -->
     <script src="/static/app.js"></script>
