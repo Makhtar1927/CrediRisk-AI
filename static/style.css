@@ -142,7 +142,7 @@ body {
 .header-actions {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
 }
 
 .model-badge {
@@ -156,6 +156,7 @@ body {
     font-size: 13px;
     font-weight: 600;
     color: var(--text-secondary);
+    white-space: nowrap;
 }
 
 .status-dot {
@@ -165,6 +166,7 @@ body {
     border-radius: 50%;
     box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
     animation: pulse 2s infinite;
+    flex-shrink: 0;
 }
 
 @keyframes pulse {
@@ -184,11 +186,55 @@ body {
     padding: 6px 12px;
     border-radius: var(--radius-sm);
     transition: var(--transition);
+    white-space: nowrap;
 }
 
 .btn-help:hover {
     background: var(--bg-surface-subtle);
     color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+    .header-container {
+        padding: 10px 16px;
+    }
+    .brand-title {
+        font-size: 18px;
+    }
+    .brand-tag {
+        font-size: 9px;
+        letter-spacing: 0.8px;
+    }
+    .model-badge .badge-text {
+        display: none;
+    }
+    .model-badge::after {
+        content: "RF 98.5%";
+        font-size: 12px;
+    }
+    .btn-help span {
+        display: none;
+    }
+    .btn-help {
+        padding: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .brand-logo {
+        width: 36px;
+        height: 36px;
+    }
+    .logo-icon {
+        width: 20px;
+        height: 20px;
+    }
+    .brand-title {
+        font-size: 16px;
+    }
+    .brand-tag {
+        display: none;
+    }
 }
 
 /* ==========================================================================
@@ -202,16 +248,23 @@ body {
 .nav-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 24px;
+    padding: 0 16px;
     display: flex;
     gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.nav-container::-webkit-scrollbar {
+    display: none;
 }
 
 .nav-tab {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 14px 20px;
+    padding: 14px 18px;
     background: none;
     border: none;
     border-bottom: 3px solid transparent;
@@ -221,6 +274,8 @@ body {
     color: var(--text-secondary);
     cursor: pointer;
     transition: var(--transition);
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .nav-tab:hover {
@@ -235,6 +290,15 @@ body {
 .nav-tab i {
     width: 18px;
     height: 18px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+    .nav-tab {
+        padding: 12px 14px;
+        font-size: 13px;
+        gap: 6px;
+    }
 }
 
 /* ==========================================================================
@@ -246,6 +310,12 @@ body {
     width: 100%;
     margin: 0 auto;
     padding: 24px;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        padding: 16px 12px;
+    }
 }
 
 .tab-panel {
@@ -283,6 +353,7 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
+    white-space: nowrap;
 }
 
 .presets-title i {
@@ -311,12 +382,35 @@ body {
     align-items: center;
     gap: 6px;
     transition: var(--transition);
+    white-space: nowrap;
 }
 
 .preset-chip:hover {
     background: #e2e8f0;
     border-color: #cbd5e1;
     transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .presets-bar {
+        padding: 10px 14px;
+        margin-bottom: 16px;
+    }
+    .presets-chips {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+        flex-wrap: nowrap;
+    }
+    .presets-chips::-webkit-scrollbar {
+        display: none;
+    }
+    .preset-chip {
+        font-size: 12px;
+        padding: 5px 12px;
+    }
 }
 
 .chip-dot {
@@ -341,6 +435,7 @@ body {
 @media (max-width: 1024px) {
     .grid-layout {
         grid-template-columns: 1fr;
+        gap: 20px;
     }
 }
 
@@ -361,6 +456,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
 .card-title-group {
@@ -373,6 +470,7 @@ body {
     width: 24px;
     height: 24px;
     color: var(--primary);
+    flex-shrink: 0;
 }
 
 .card-title {
@@ -386,6 +484,18 @@ body {
     font-size: 13px;
     color: var(--text-muted);
     margin-top: 2px;
+}
+
+@media (max-width: 640px) {
+    .card-header {
+        padding: 16px;
+    }
+    .card-title {
+        font-size: 16px;
+    }
+    .card-subtitle {
+        font-size: 12px;
+    }
 }
 
 /* ==========================================================================
@@ -601,6 +711,20 @@ body {
     padding: 24px;
 }
 
+@media (max-width: 1024px) {
+    .result-card {
+        position: static;
+        top: auto;
+        padding: 20px;
+    }
+}
+
+@media (max-width: 640px) {
+    .result-card {
+        padding: 16px;
+    }
+}
+
 .empty-state {
     padding: 60px 20px;
     text-align: center;
@@ -665,6 +789,8 @@ body {
     align-items: center;
     margin-bottom: 20px;
     transition: var(--transition);
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .decision-banner.approved {
@@ -720,6 +846,17 @@ body {
     color: var(--danger);
 }
 
+@media (max-width: 480px) {
+    .decision-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 14px 16px;
+    }
+    .decision-value {
+        font-size: 20px;
+    }
+}
+
 /* JAUGE DE SCORE */
 .score-section {
     text-align: center;
@@ -733,6 +870,7 @@ body {
 .gauge-container {
     position: relative;
     width: 220px;
+    max-width: 100%;
     height: 110px;
     margin: 0 auto;
 }
@@ -769,10 +907,21 @@ body {
     display: flex;
     justify-content: space-between;
     width: 220px;
+    max-width: 100%;
     margin: 8px auto 0 auto;
     font-size: 11px;
     font-weight: 600;
     color: var(--text-muted);
+}
+
+@media (max-width: 480px) {
+    .gauge-container {
+        width: 190px;
+        height: 95px;
+    }
+    .score-number {
+        font-size: 34px;
+    }
 }
 
 /* KPIS */
@@ -781,6 +930,13 @@ body {
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
     margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+    .kpis-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
 }
 
 .kpi-box {
@@ -863,6 +1019,12 @@ body {
     grid-template-columns: 1fr 1fr;
     gap: 12px;
     margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+    .audit-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .audit-col {

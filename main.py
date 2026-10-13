@@ -3,11 +3,15 @@ import io
 import joblib
 import pandas as pd
 import numpy as np
+import time
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field
+
+# Timestamp de démarrage pour métriques uptime
+SERVER_START_TIME = time.time()
 
 # 1. Initialisation FastAPI
 app = FastAPI(
@@ -23,6 +27,20 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Endpoint de santé pour Cronjobs (Keep-Alive Render / UptimeRobot / cron-job.org)
+@app.get("/health")
+@app.get("/healthz")
+@app.get("/api/health")
+def health_check():
+    uptime_sec = int(time.time() - SERVER_START_TIME)
+    return {
+        "status": "healthy",
+        "service": "CrediRisk AI",
+        "model_loaded": pipeline is not None,
+        "uptime_seconds": uptime_sec,
+        "timestamp": int(time.time())
+    }
 
 # 2. Chargement du Pipeline Machine Learning
 MODEL_PATH = "credit_risk_best_pipeline.joblib"

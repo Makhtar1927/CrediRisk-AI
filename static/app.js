@@ -308,6 +308,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (window.lucide) lucide.createIcons();
+
+        // Défilement automatique fluide vers les résultats sur mobile / tablette
+        if (window.innerWidth <= 1024) {
+            const resultCard = document.getElementById('resultCard');
+            if (resultCard) {
+                resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
     }
 
     // Animation numérique fluide pour le score

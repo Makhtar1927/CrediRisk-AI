@@ -98,3 +98,45 @@ uvicorn main:app --reload --port 8000
 
 3. **Votre application est en ligne !**
    Render vous fournira une URL HTTPS gratuite (ex: `https://credirisk-ai.onrender.com`).
+
+---
+
+## ⏰ Empêcher la Mise en Veille sur Render (Cronjob Keep-Alive)
+
+Sur le forfait gratuit Render, les services web se mettent en veille après 15 minutes d'inactivité (*spindown*), ce qui provoque un délai de 30 à 50 secondes au prochain chargement.
+
+Pour maintenir votre application **active 24h/24 et 7j/7 sans temps de veille** :
+
+### 1. Endpoint de Santé Dédié
+L'API intègre un point de terminaison ultraléger :
+- **URL** : `https://credirisk-ai.onrender.com/health` (ou `/api/health`)
+- **Réponse HTTP 200** :
+  ```json
+  {
+    "status": "healthy",
+    "service": "CrediRisk AI",
+    "model_loaded": true,
+    "uptime_seconds": 3600,
+    "timestamp": 1791928532
+  }
+  ```
+
+### 2. Configuration d'un Cronjob Gratuit (En 2 minutes)
+1. Rendez-vous sur **[cron-job.org](https://cron-job.org)** (ou [UptimeRobot.com](https://uptimerobot.com)).
+2. Créez un compte gratuit.
+3. Cliquez sur **Create Cronjob** :
+   - **Title** : `CrediRisk AI Keep-Alive`
+   - **URL** : `https://VOTRE-APP.onrender.com/health`
+   - **Schedule** : Toutes les **10 minutes** (`Every 10 minutes`).
+   - **Method** : `GET`
+4. Enregistrez : le cronjob enverra un ping toutes les 10 minutes, empêchant Render d'endormir le serveur !
+
+---
+
+## 📱 Responsivité & Expérience Mobile
+
+L'interface s'adapte automatiquement à toutes les résolutions d'écran :
+- **Mobiles (iOS / Android)** : Formulaire à 1 colonne, contrôles tactiles agrandis (44px), défilement horizontal fluide des onglets et presets sans débordement, défilement automatique vers la fiche d'audit dès le clic.
+- **Tablettes & Ordinateurs portables** : Disposition réorganisée et lisibilité optimale des matrices et graphiques.
+- **Écrans larges** : Affichage côte à côte (formulaire et résultat fixe) pour un confort de saisie type poste de travail bancaire.
+
