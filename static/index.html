@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrediRisk AI - Système d'Évaluation de Risque de Crédit</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="light-mode">
+    <!-- HEADER -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-logo">
+                    <i data-lucide="shield-check" class="logo-icon"></i>
+                </div>
+                <div class="brand-info">
+                    <span class="brand-tag">FINTECH RISK SCORING ENGINE</span>
+                    <h1 class="brand-title">CrediRisk <span class="accent-text">AI</span></h1>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <div class="model-badge">
+                    <span class="status-dot"></span>
+                    <span class="badge-text">Modèle Random Forest SOTA (AUC 98.5%)</span>
+                </div>
+                <a href="#doc" class="btn-help" id="btnHelp" title="Guide d'utilisation">
+                    <i data-lucide="help-circle"></i>
+                    <span>Aide</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- NAVIGATION TABS -->
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <button class="nav-tab active" data-tab="simulator" id="tab-simulator">
+                <i data-lucide="user-check"></i>
+                <span>Simulateur Individuel</span>
+            </button>
+            <button class="nav-tab" data-tab="batch" id="tab-batch">
+                <i data-lucide="layers"></i>
+                <span>Analyse par Lot (Excel)</span>
+            </button>
+            <button class="nav-tab" data-tab="analytics" id="tab-analytics">
+                <i data-lucide="bar-chart-3"></i>
+                <span>Performances & Modèle</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- ONGLET 1 : SIMULATEUR INDIVIDUEL -->
+        <section class="tab-panel active" id="panel-simulator">
+            <!-- PRESETS RAPIDES -->
+            <div class="presets-bar">
+                <span class="presets-title"><i data-lucide="sparkles"></i> Profils types de démonstration :</span>
+                <div class="presets-chips">
+                    <button type="button" class="preset-chip" data-preset="excellent">
+                        <span class="chip-dot dot-green"></span> Client Solvable (Très Faible Risque)
+                    </button>
+                    <button type="button" class="preset-chip" data-preset="moderate">
+                        <span class="chip-dot dot-orange"></span> Dossier Intermédiaire (À Surveiller)
+                    </button>
+                    <button type="button" class="preset-chip" data-preset="risky">
+                        <span class="chip-dot dot-red"></span> Profil Risqué (Surendettement)
+                    </button>
+                    <button type="button" class="preset-chip" data-preset="primo">
+                        <span class="chip-dot dot-blue"></span> Primo-Emprunteur (0 Antécédent)
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid-layout">
+                <!-- FORMULAIRE -->
+                <div class="card form-card">
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <i data-lucide="clipboard-list" class="card-icon"></i>
+                            <div>
+                                <h2 class="card-title">Dossier de Demande de Crédit</h2>
+                                <p class="card-subtitle">Renseignez les informations de l'emprunteur et les modalités financières</p>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-secondary btn-sm" id="btnResetForm">
+                            <i data-lucide="rotate-ccw"></i> Réinitialiser
+                        </button>
+                    </div>
+
+                    <form id="creditForm" class="credit-form">
+                        <!-- SECTION 1 : EMPRUNTEUR -->
+                        <div class="form-section-title">
+                            <span class="section-num">1</span>
+                            <span>Profil de l'Emprunteur</span>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="age">Âge de l'Emprunteur <span class="required">*</span></label>
+                                <div class="input-with-unit">
+                                    <input type="number" id="age" name="age" min="18" max="95" value="38" required>
+                                    <span class="unit">ans</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="nb_credit_ant">Crédits Antérieurs Remboursés</label>
+                                <div class="input-with-unit">
+                                    <input type="number" id="nb_credit_ant" name="nb_credit_ant" min="0" max="25" value="4" required>
+                                    <span class="unit">crédits</span>
+                                </div>
+                                <span class="help-text">0 si primo-emprunteur</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="nb_dossiers_membre">Dossiers Enregistrés du Membre</label>
+                                <div class="input-with-unit">
+                                    <input type="number" id="nb_dossiers_membre" name="nb_dossiers_membre" min="1" max="30" value="2" required>
+                                    <span class="unit">dossiers</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="agence">Agence Émettrice</label>
+                                <select id="agence" name="agence" required>
+                                    <option value="CEC_B" selected>CEC_B</option>
+                                    <option value="CEC/PLATEAU">CEC/PLATEAU</option>
+                                    <option value="MECYD">MECYD</option>
+                                    <option value="MECREST">MECREST</option>
+                                    <option value="MECZOR">MECZOR</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group span-2">
+                                <label for="secteur_activite">Secteur d'Activité Économique</label>
+                                <select id="secteur_activite" name="secteur_activite" required>
+                                    <option value="COMMERCE" selected>COMMERCE DE DÉTAIL / GROS</option>
+                                    <option value="CONSTRUCTION">CONSTRUCTION & BÂTIMENT</option>
+                                    <option value="CONSOMMATION">CONSOMMATION SALARIÉ</option>
+                                    <option value="AGRICULTURE, ELEVAGE, CHASSE ET SYLVICULTURE">AGRICULTURE & ÉLEVAGE</option>
+                                    <option value="PECHE, PISCICULTURE, AQUACULTURE">PÊCHE & AQUACULTURE</option>
+                                    <option value="TRANSPORT, ACTIVITES AUXILIAIRES ET COMMUNICATIONS">TRANSPORT & LOGISTIQUE</option>
+                                    <option value="REPARATION DE VEHICULE AUTOM ET D'ARTICLE DOMESTIQUE">RÉPARATION AUTOMOBILE</option>
+                                    <option value="ACTIVITES DE FABRICATION">FABRICATION ARTISANALE / INDUSTRIELLE</option>
+                                    <option value="HOTELS, RESTAURANTS ET TOURISME">HÔTELLERIE & RESTAURATION</option>
+                                    <option value="AUTRES ACTIVITES">AUTRES ACTIVITÉS</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- SECTION 2 : CONDITIONS FINANCIÈRES -->
+                        <div class="form-section-title">
+                            <span class="section-num">2</span>
+                            <span>Modalités Financières & Encours</span>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="montant_debourse">Montant Total Prêté (Déboursé) <span class="required">*</span></label>
+                                <div class="input-with-currency">
+                                    <input type="number" id="montant_debourse" name="montant_debourse" min="10000" step="50000" value="2000000" required>
+                                    <span class="currency">FCFA</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="solde_credit">Solde Restant Dû Actuel <span class="required">*</span></label>
+                                <div class="input-with-currency">
+                                    <input type="number" id="solde_credit" name="solde_credit" min="0" step="10000" value="300000" required>
+                                    <span class="currency">FCFA</span>
+                                </div>
+                                <span class="help-text" id="liveRatio">Ratio d'encours : 15.0%</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="duree_credit">Durée d'Engagement</label>
+                                <select id="duree_credit" name="duree_credit" required>
+                                    <option value="COURT_TERME" selected>Court Terme (0 à 12 mois)</option>
+                                    <option value="MOYEN_TERME">Moyen Terme (1 an à 3 ans)</option>
+                                    <option value="LONG_TERME">Long Terme (> 3 ans)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="usage_credit">Objet du Financement</label>
+                                <select id="usage_credit" name="usage_credit" required>
+                                    <option value="TRESORERIE" selected>Fonds de Roulement / Trésorerie</option>
+                                    <option value="FEMME">Programme Spécifique Femmes (AFSSEF)</option>
+                                    <option value="PERSONNEL">Crédit Personnel / Consommation</option>
+                                    <option value="MICRO_ENTREPRENEUR">Micro-Entreprise / Activité Génératrice</option>
+                                    <option value="EQUIPEMENT">Achat d'Équipement Professionnel</option>
+                                    <option value="AUTRE">Autre Financement</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="annee_ouverture">Année d'Octroi</label>
+                                <input type="number" id="annee_ouverture" name="annee_ouverture" min="2020" max="2030" value="2026" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="mois_ouverture">Mois d'Octroi</label>
+                                <select id="mois_ouverture" name="mois_ouverture" required>
+                                    <option value="1">Janvier</option>
+                                    <option value="2">Février</option>
+                                    <option value="3">Mars</option>
+                                    <option value="4" selected>Avril</option>
+                                    <option value="5">Mai</option>
+                                    <option value="6">Juin</option>
+                                    <option value="7">Juillet</option>
+                                    <option value="8">Août</option>
+                                    <option value="9">Septembre</option>
+                                    <option value="10">Octobre</option>
+                                    <option value="11">Novembre</option>
+                                    <option value="12">Décembre</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary" id="btnSubmit">
+                                <i data-lucide="cpu"></i>
+                                <span>Lancer l'Évaluation IA du Risque</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- RÉSULTATS DE L'IA -->
+                <div class="card result-card" id="resultCard">
+                    <!-- ÉTAT INITIAL VIDE -->
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-icon-wrapper">
+                            <i data-lucide="gauge" class="empty-icon"></i>
+                        </div>
+                        <h3>Prêt pour l'Évaluation</h3>
+                        <p>Renseignez le formulaire ou sélectionnez un profil type ci-dessus pour obtenir instantanément l'audit et le score de crédit.</p>
+                    </div>
+
+                    <!-- LOADER -->
+                    <div class="loader-wrapper" id="loaderWrapper" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Calcul des probabilités et analyse par le modèle Machine Learning...</p>
+                    </div>
+
+                    <!-- CONTENU DES RÉSULTATS -->
+                    <div class="result-content" id="resultContent" style="display: none;">
+                        <!-- BANDEAU DÉCISION -->
+                        <div class="decision-banner" id="decisionBanner">
+                            <div class="decision-header">
+                                <span class="decision-label">Décision du Système Décisionnel</span>
+                                <h3 class="decision-value" id="decisionValue">ACCORDÉ</h3>
+                            </div>
+                            <div class="decision-badge" id="riskBadge">Faible Risque</div>
+                        </div>
+
+                        <!-- JAUGE DE SCORE FICO -->
+                        <div class="score-section">
+                            <div class="gauge-container">
+                                <svg class="gauge-svg" viewBox="0 0 200 120">
+                                    <!-- Arc de fond -->
+                                    <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#e2e8f0" stroke-width="16" stroke-linecap="round"/>
+                                    <!-- Arc actif dynamique -->
+                                    <path id="gaugeProgress" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#10b981" stroke-width="16" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="50"/>
+                                </svg>
+                                <div class="gauge-text">
+                                    <span class="score-number" id="scoreValue">745</span>
+                                    <span class="score-max">/ 850</span>
+                                </div>
+                            </div>
+                            <div class="score-legend">
+                                <span class="legend-scale">300 (Risque Max)</span>
+                                <span class="legend-scale">850 (Solvable)</span>
+                            </div>
+                        </div>
+
+                        <!-- CARTES KPIS -->
+                        <div class="kpis-grid">
+                            <div class="kpi-box">
+                                <span class="kpi-label">Probabilité de Défaut</span>
+                                <span class="kpi-val" id="probDefautVal">16.4%</span>
+                                <div class="kpi-bar-bg"><div class="kpi-bar-fill" id="probBar" style="width: 16%;"></div></div>
+                            </div>
+                            <div class="kpi-box">
+                                <span class="kpi-label">Taux d'Amortissement</span>
+                                <span class="kpi-val text-blue" id="tauxRembVal">85.0%</span>
+                                <div class="kpi-bar-bg"><div class="kpi-bar-fill fill-blue" id="rembBar" style="width: 85%;"></div></div>
+                            </div>
+                            <div class="kpi-box">
+                                <span class="kpi-label">Ratio Solde / Dette</span>
+                                <span class="kpi-val" id="ratioSoldeVal">15.0%</span>
+                                <div class="kpi-bar-bg"><div class="kpi-bar-fill fill-orange" id="ratioBar" style="width: 15%;"></div></div>
+                            </div>
+                        </div>
+
+                        <!-- DIAGNOSTIC MÉTIER -->
+                        <div class="diagnostic-box">
+                            <h4 class="diagnostic-title"><i data-lucide="activity"></i> Diagnostic de l'Algorithme</h4>
+                            <p id="diagnosticText" class="diagnostic-text">Profil emprunteur régulier.</p>
+                        </div>
+
+                        <!-- AUDIT POINTS FORTS / VIGILANCE -->
+                        <div class="audit-grid">
+                            <div class="audit-col points-forts">
+                                <span class="audit-header"><i data-lucide="check-circle-2"></i> Points Forts</span>
+                                <ul id="listPointsForts" class="audit-list"></ul>
+                            </div>
+                            <div class="audit-col points-vigilance">
+                                <span class="audit-header"><i data-lucide="alert-triangle"></i> Facteurs de Vigilance</span>
+                                <ul id="listPointsVigilance" class="audit-list"></ul>
+                            </div>
+                        </div>
+
+                        <!-- RECOMMANDATIONS -->
+                        <div class="recommendations-box">
+                            <span class="recommendations-header"><i data-lucide="lightbulb"></i> Recommandations pour le Comité de Crédit</span>
+                            <ul id="listRecommendations" class="recommendations-list"></ul>
+                        </div>
+
+                        <!-- ACTIONS RÉSULTAT -->
+                        <div class="result-actions">
+                            <button type="button" class="btn-outline btn-block" onclick="window.print()">
+                                <i data-lucide="printer"></i> Imprimer / Exporter la Fiche d'Audit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ONGLET 2 : ANALYSE PAR LOT (EXCEL) -->
+        <section class="tab-panel" id="panel-batch">
+            <div class="batch-container">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <i data-lucide="file-spreadsheet" class="card-icon text-green"></i>
+                            <div>
+                                <h2 class="card-title">Scoring Automatisé de Portefeuille</h2>
+                                <p class="card-subtitle">Téléversez un fichier Excel (.xlsx) ou CSV contenant des dizaines de dossiers de prêts</p>
+                            </div>
+                        </div>
+                        <a href="/api/download-sample" class="btn-secondary btn-sm" id="btnDownloadSample">
+                            <i data-lucide="download"></i> Télécharger un Échantillon (.xlsx)
+                        </a>
+                    </div>
+
+                    <!-- DROP ZONE -->
+                    <div class="upload-dropzone" id="dropZone">
+                        <input type="file" id="batchFileInput" accept=".xlsx,.csv" class="file-hidden">
+                        <div class="dropzone-content">
+                            <div class="dropzone-icon">
+                                <i data-lucide="upload-cloud"></i>
+                            </div>
+                            <h4>Glissez-déposez votre fichier ici, ou <span class="browse-link">parcourez vos fichiers</span></h4>
+                            <p class="dropzone-hint">Formats acceptés : <strong>DataSet_Credit.xlsx</strong>, .xlsx, .csv (Jusqu'à 50 000 dossiers)</p>
+                            <span class="selected-filename" id="selectedFileName"></span>
+                        </div>
+                    </div>
+
+                    <div class="batch-submit-bar">
+                        <button type="button" class="btn-primary" id="btnRunBatch" disabled>
+                            <i data-lucide="play"></i> Lancer le Traitement en Masse
+                        </button>
+                    </div>
+
+                    <!-- BATCH RESULTS AREA -->
+                    <div class="batch-results-wrapper" id="batchResultsWrapper" style="display: none;">
+                        <div class="batch-stats-grid">
+                            <div class="stat-card">
+                                <span class="stat-label">Total Dossiers Traités</span>
+                                <span class="stat-value" id="batchTotal">0</span>
+                            </div>
+                            <div class="stat-card stat-green">
+                                <span class="stat-label">Prêts Accordés (Faible Risque)</span>
+                                <span class="stat-value" id="batchAccordes">0</span>
+                            </div>
+                            <div class="stat-card stat-orange">
+                                <span class="stat-label">Études en Comité Recommandées</span>
+                                <span class="stat-value" id="batchComite">0</span>
+                            </div>
+                            <div class="stat-card stat-red">
+                                <span class="stat-label">Prêts Refusés (Risque Élevé)</span>
+                                <span class="stat-value" id="batchRefuses">0</span>
+                            </div>
+                        </div>
+
+                        <div class="batch-table-header">
+                            <h3>Aperçu des 25 Premiers Dossiers Scorés</h3>
+                            <button type="button" class="btn-secondary btn-sm" id="btnDownloadScoredExcel">
+                                <i data-lucide="download"></i> Télécharger le Fichier Scoré Complet
+                            </button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="batch-table" id="batchTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID / Membre</th>
+                                        <th>Agence</th>
+                                        <th>Secteur</th>
+                                        <th>Montant</th>
+                                        <th>Solde</th>
+                                        <th>Probabilité Défaut</th>
+                                        <th>Score FICO</th>
+                                        <th>Décision IA</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="batchTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ONGLET 3 : PERFORMANCES DU MODÈLE -->
+        <section class="tab-panel" id="panel-analytics">
+            <div class="analytics-container">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <i data-lucide="award" class="card-icon text-blue"></i>
+                            <div>
+                                <h2 class="card-title">Audit Technique & Validité Prudentielle</h2>
+                                <p class="card-subtitle">Performances certifiées du modèle entraîné sur les 15 188 dossiers réels</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="analytics-metrics-grid">
+                        <div class="metric-box">
+                            <div class="metric-top">
+                                <span class="metric-title">ROC-AUC</span>
+                                <i data-lucide="trending-up" class="metric-icon text-green"></i>
+                            </div>
+                            <div class="metric-val">0.985</div>
+                            <p class="metric-desc">Pouvoir de discrimination quasi-parfait entre clients sains et défaillants.</p>
+                        </div>
+
+                        <div class="metric-box">
+                            <div class="metric-top">
+                                <span class="metric-title">Recall sur Défauts</span>
+                                <i data-lucide="shield-alert" class="metric-icon text-blue"></i>
+                            </div>
+                            <div class="metric-val">81.2 %</div>
+                            <p class="metric-desc">Taux de détection précoce des incidents de paiement majeurs.</p>
+                        </div>
+
+                        <div class="metric-box">
+                            <div class="metric-top">
+                                <span class="metric-title">Précision Globale</span>
+                                <i data-lucide="check-check" class="metric-icon text-green"></i>
+                            </div>
+                            <div class="metric-val">96.1 %</div>
+                            <p class="metric-desc">Taux de prédictions exactes sur l'ensemble de l'échantillon test stratifié.</p>
+                        </div>
+
+                        <div class="metric-box">
+                            <div class="metric-top">
+                                <span class="metric-title">Taille de l'Échantillon</span>
+                                <i data-lucide="database" class="metric-icon text-purple"></i>
+                            </div>
+                            <div class="metric-val">15 188</div>
+                            <p class="metric-desc">Historique de prêts réels bancaires (Période 2019 à 2026).</p>
+                        </div>
+                    </div>
+
+                    <div class="analytics-explain-grid">
+                        <div class="explain-card">
+                            <h3><i data-lucide="target"></i> Facteurs Clés d'Explicabilité (Top Features)</h3>
+                            <ul class="features-rank-list">
+                                <li>
+                                    <span class="feat-name">1. Ratio Solde Restant / Déboursé</span>
+                                    <div class="feat-bar-bg"><div class="feat-bar-fill" style="width: 95%;"></div></div>
+                                    <span class="feat-pct">32% d'importance</span>
+                                </li>
+                                <li>
+                                    <span class="feat-name">2. Taux d'Amortissement Actuel</span>
+                                    <div class="feat-bar-bg"><div class="feat-bar-fill" style="width: 82%;"></div></div>
+                                    <span class="feat-pct">26% d'importance</span>
+                                </li>
+                                <li>
+                                    <span class="feat-name">3. Année d'Ouverture & Ancienneté</span>
+                                    <div class="feat-bar-bg"><div class="feat-bar-fill" style="width: 65%;"></div></div>
+                                    <span class="feat-pct">18% d'importance</span>
+                                </li>
+                                <li>
+                                    <span class="feat-name">4. Solde Restant Dû Absolu</span>
+                                    <div class="feat-bar-bg"><div class="feat-bar-fill" style="width: 45%;"></div></div>
+                                    <span class="feat-pct">12% d'importance</span>
+                                </li>
+                                <li>
+                                    <span class="feat-name">5. Nombre de Crédits Antérieurs</span>
+                                    <div class="feat-bar-bg"><div class="feat-bar-fill" style="width: 30%;"></div></div>
+                                    <span class="feat-pct">7% d'importance</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="explain-card">
+                            <h3><i data-lucide="scale"></i> Grille de Décision Prudentielle (Normes Bâle & Microfinance)</h3>
+                            <div class="decision-rules-table">
+                                <div class="rule-row rule-green">
+                                    <div class="rule-badge">Score ≥ 700</div>
+                                    <div class="rule-body">
+                                        <strong>Accord Automatisé (Risque Faible)</strong>
+                                        <p>Probabilité de défaut inférieure à 25%. Dossier fluide, déblocage standard des fonds.</p>
+                                    </div>
+                                </div>
+                                <div class="rule-row rule-orange">
+                                    <div class="rule-badge">Score 550 - 699</div>
+                                    <div class="rule-body">
+                                        <strong>Examen en Comité (Risque Modéré)</strong>
+                                        <p>Probabilité de défaut 25% à 50%. Exigence d'une garantie matérielle ou caution solidaire.</p>
+                                    </div>
+                                </div>
+                                <div class="rule-row rule-red">
+                                    <div class="rule-badge">Score < 550</div>
+                                    <div class="rule-body">
+                                        <strong>Rejet Préconisé (Risque Élevé)</strong>
+                                        <p>Probabilité de défaut > 50%. Surendettement ou impayés critiques.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="app-footer">
+        <div class="footer-container">
+            <p>© 2026 CrediRisk AI - Solution Déployable sur Render / Cloud. Modèle certifié Machine Learning.</p>
+            <div class="footer-links">
+                <span class="footer-tag">Python 3.13</span>
+                <span class="footer-tag">FastAPI</span>
+                <span class="footer-tag">Scikit-Learn</span>
+                <span class="footer-tag">Random Forest</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SCRIPT APPLICATION -->
+    <script src="/static/app.js"></script>
+</body>
+</html>
