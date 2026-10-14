@@ -462,7 +462,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const res  = await fetch('/health');
             const data = await res.json();
             if (!data.model_loaded) {
-                showToast('⚠ Modèle ML non chargé sur le serveur. Certaines fonctions sont indisponibles.', 'error', 8000);
+                const errDetail = data.model_error ? ` (${data.model_error})` : '';
+                showToast(`⚠ Modèle ML non chargé sur le serveur${errDetail}. Certaines fonctions sont indisponibles.`, 'error', 8000);
             }
         } catch {
             // Silencieux si le serveur est inaccessible en local

@@ -42,26 +42,47 @@ def health_check():
         "service": "CrediRisk AI",
         "version": "2.0.0",
         "model_loaded": pipeline is not None,
+        "model_path": LOADED_MODEL_PATH,
         "model_error": MODEL_ERROR,
         "uptime_seconds": uptime_sec,
         "timestamp": int(time.time())
     }
 
 # 2. Chargement du Pipeline Machine Learning
-MODEL_PATH = "credit_risk_best_pipeline.joblib"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_FILENAME = "credit_risk_best_pipeline.joblib"
+
+POSSIBLE_PATHS = [
+    os.path.join(BASE_DIR, MODEL_FILENAME),
+    os.path.join(os.getcwd(), MODEL_FILENAME),
+    MODEL_FILENAME,
+    os.path.abspath(MODEL_FILENAME),
+]
+
 pipeline = None
 MODEL_ERROR = None
+LOADED_MODEL_PATH = None
 
-try:
-    if os.path.exists(MODEL_PATH):
-        pipeline = joblib.load(MODEL_PATH)
-        print("[INFO] Pipeline Machine Learning charge avec succes.")
-    else:
-        MODEL_ERROR = f"Fichier modele introuvable : {MODEL_PATH}"
-        print(f"[ATTENTION] {MODEL_ERROR}")
-except Exception as e:
-    MODEL_ERROR = str(e)
-    print(f"[ERREUR] Erreur lors du chargement du modele : {e}")
+found_path = None
+for p in POSSIBLE_PATHS:
+    if os.path.exists(p):
+        found_path = p
+        break
+
+if found_path is not None:
+    try:
+        pipeline = joblib.load(found_path)
+        LOADED_MODEL_PATH = found_path
+        print(f"[INFO] Pipeline Machine Learning charge avec succes depuis : {found_path}")
+    except Exception as e:
+        import traceback
+        MODEL_ERROR = f"{type(e).__name__}: {str(e)}"
+        print(f"[ERREUR] Erreur lors du chargement du modele ({found_path}) : {e}")
+        traceback.print_exc()
+else:
+    checked_str = ", ".join(POSSIBLE_PATHS)
+    MODEL_ERROR = f"Fichier {MODEL_FILENAME} introuvable. Chemins verifies : {checked_str}"
+    print(f"[ATTENTION] {MODEL_ERROR}")
 
 # Référentiels
 AGENCES = ['CEC_B', 'CEC/PLATEAU', 'MECYD', 'MECREST', 'MECZOR']
