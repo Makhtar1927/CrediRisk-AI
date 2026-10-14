@@ -71,6 +71,21 @@ for p in POSSIBLE_PATHS:
 
 if found_path is not None:
     try:
+        # Patch de compatibilité pour désérialisation scikit-learn (_RemainderColsList)
+        try:
+            import sklearn.compose._column_transformer as _ct
+            from collections import UserList
+            if not hasattr(_ct, '_RemainderColsList'):
+                class _RemainderColsList(UserList):
+                    def __init__(self, columns=(), *, future_dtype=None, warning_was_emitted=False, warning_enabled=True):
+                        super().__init__(columns)
+                        self.future_dtype = future_dtype
+                        self.warning_was_emitted = warning_was_emitted
+                        self.warning_enabled = warning_enabled
+                _ct._RemainderColsList = _RemainderColsList
+        except Exception as _patch_err:
+            print(f"[WARN] Impossible d'injecter le shim _RemainderColsList : {_patch_err}")
+
         pipeline = joblib.load(found_path)
         LOADED_MODEL_PATH = found_path
         print(f"[INFO] Pipeline Machine Learning charge avec succes depuis : {found_path}")

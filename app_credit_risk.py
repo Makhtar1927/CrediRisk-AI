@@ -9,6 +9,21 @@ MODEL_PATH = 'credit_risk_best_pipeline.joblib'
 if not os.path.exists(MODEL_PATH):
     raise FileNotFoundError(f"Modèle '{MODEL_PATH}' introuvable. Veuillez d'abord exécuter l'Étape 3.")
 
+# Patch de compatibilité pour désérialisation scikit-learn (_RemainderColsList)
+try:
+    import sklearn.compose._column_transformer as _ct
+    from collections import UserList
+    if not hasattr(_ct, '_RemainderColsList'):
+        class _RemainderColsList(UserList):
+            def __init__(self, columns=(), *, future_dtype=None, warning_was_emitted=False, warning_enabled=True):
+                super().__init__(columns)
+                self.future_dtype = future_dtype
+                self.warning_was_emitted = warning_was_emitted
+                self.warning_enabled = warning_enabled
+        _ct._RemainderColsList = _RemainderColsList
+except Exception:
+    pass
+
 pipeline = joblib.load(MODEL_PATH)
 
 # Listes des valeurs catégorielles autorisées
