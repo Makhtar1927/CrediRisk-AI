@@ -324,20 +324,12 @@ def get_model_info():
         "usages": USAGES
     }
 
+# Montage des fichiers statiques — doit être déclaré AVANT les routes catch-all
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 @app.get("/", include_in_schema=False)
 def serve_index():
     return FileResponse("static/index.html")
-
-@app.get("/{full_path:path}", include_in_schema=False)
-def serve_spa(full_path: str):
-    """Fallback : sert index.html pour toutes les routes non-API (SPA routing)."""
-    static_file = f"static/{full_path}"
-    if os.path.isfile(static_file):
-        return FileResponse(static_file)
-    return FileResponse("static/index.html")
-
-# Montage des fichiers statiques — DOIT être après toutes les routes API
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 if __name__ == "__main__":
     import uvicorn
